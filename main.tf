@@ -6,6 +6,16 @@ terraform {
   }
 }
 
+# The number of instances required
+variable "instance_count" {
+  default = 3
+}
+
+# The Kay Pair name, this must be created mannualy before running
+variable "key_name" {
+  default = "tyler"
+}
+
 provider "aws" {
   region = "us-east-1"
 }
@@ -62,16 +72,19 @@ resource "aws_security_group" "boundary_access" {
   }
 }
 
+
 resource "aws_eip" "this" {
+  count    = var.instance_count  
   vpc      = true
-  instance = "${aws_instance.example.id}"
+  instance = aws_instance.example[count.index].id
 }
 
 resource "aws_instance" "example" {
+  count                       = var.instance_count
   ami                         = "${data.aws_ami.ubuntu.id}"
   instance_type               = "t2.micro"
   vpc_security_group_ids      = ["${aws_security_group.ssh_access.id}", "${aws_security_group.boundary_access.id}"]
-  key_name                    = "tyler"
+  key_name                    = var.key_name
   associate_public_ip_address = true
 
   tags = {
