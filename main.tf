@@ -75,7 +75,7 @@ resource "aws_security_group" "boundary_access" {
 
 resource "aws_eip" "this" {
   count    = var.instance_count  
-  vpc      = true
+  domain   = "vpc"
   instance = aws_instance.example[count.index].id
 }
 
