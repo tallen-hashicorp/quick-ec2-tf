@@ -8,7 +8,7 @@ terraform {
 
 # The number of instances required
 variable "instance_count" {
-  default = 3
+  default = 1
 }
 
 # The Kay Pair name, this must be created mannualy before running
