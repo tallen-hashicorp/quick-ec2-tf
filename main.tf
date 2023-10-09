@@ -8,7 +8,7 @@ terraform {
 
 # The number of instances required
 variable "instance_count" {
-  default = 1
+  default = 3
 }
 
 # The Kay Pair name, this must be created mannualy before running
@@ -72,6 +72,26 @@ resource "aws_security_group" "boundary_access" {
   }
 }
 
+resource "aws_security_group" "internal_traffic" {
+  name_prefix = "internal_traffic"
+  description = "Allow all internal traffic to EC2 instance"
+
+  # Ingress rule to allow all internal traffic
+  ingress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = ["172.31.32.0/20"] # Replace with your internal IP range (e.g., your VPC's CIDR block)
+  }
+
+  # Egress rule to allow all outbound traffic
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
 
 resource "aws_eip" "this" {
   count    = var.instance_count  
@@ -83,7 +103,7 @@ resource "aws_instance" "example" {
   count                       = var.instance_count
   ami                         = "${data.aws_ami.ubuntu.id}"
   instance_type               = "t2.micro"
-  vpc_security_group_ids      = ["${aws_security_group.ssh_access.id}", "${aws_security_group.boundary_access.id}"]
+  vpc_security_group_ids      = ["${aws_security_group.ssh_access.id}", "${aws_security_group.boundary_access.id}", "${aws_security_group.internal_traffic.id}"]
   key_name                    = var.key_name
   associate_public_ip_address = true
 
