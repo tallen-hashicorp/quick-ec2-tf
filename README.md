@@ -28,6 +28,7 @@ variable "key_name" {
 ```
 
 ## Quickstart
+If Using Dorrman you need to login to generate the env vars for the AWS secret/key
 ```bash
 doormat login
 eval $(doormat aws --account $(cat account.txt))
